@@ -1,5 +1,6 @@
 import ErrorHandler from "../utils/ErrorHandler.js";
 import Hotel from "../models/Hotel.js";
+import Room from "../models/Room.js";
 
 // create
 export const createHotel = async (req, res, next) => {
@@ -76,12 +77,15 @@ export const getHotels = async (req, res, next) => {
       cheapestPrice: { $gte: min || 10, $lte: max || 1000 },
     }).limit(req.query.limit);
 
+    // const hotelNum = hotels.countDocuments();
+
     if (!hotels) {
       return next(ErrorHandler(404, "Hotels not found!"));
     }
 
     res.status(200).json({
       hotels,
+      // hotelNum,
     });
   } catch (error) {
     next(error);
@@ -123,5 +127,19 @@ export const countByType = async (req, res, next) => {
     ]);
   } catch (error) {
     return next(ErrorHandler(404, "Cannot find all hotel"));
+  }
+};
+
+export const getHotelRooms = async (req, res, next) => {
+  try {
+    const hotel = await Hotel.findById(req.params.id);
+    const list = await Promise.all(
+      hotel.rooms.map((room) => {
+        return Room.findById(room);
+      })
+    );
+    return res.status(200).json(list);
+  } catch (error) {
+    next(error);
   }
 };

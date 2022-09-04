@@ -41,6 +41,26 @@ export const updateRoom = async (req, res, next) => {
   }
 };
 
+// update room availability
+export const updateRoomAvailability = async (req, res, next) => {
+  try {
+    await Room.updateOne(
+      { "roomNumbers._id": req.params.id },
+      {
+        $push: {
+          "roomNumbers.$.unavailableDates": req.body.dates,
+        },
+      }
+    );
+    res.status(200).json({
+      success: true,
+      message: "Room status has been changed",
+    });
+  } catch (error) {
+    next(err);
+  }
+};
+
 // delete
 export const deleteRoom = async (req, res, next) => {
   const hotelId = req.params.hotelid;
@@ -67,12 +87,12 @@ export const deleteRoom = async (req, res, next) => {
   }
 };
 
-// get hotel
+// get room
 export const getRoom = async (req, res, next) => {
   try {
     const room = await Room.findById(req.params.id);
     if (!room) {
-      return next(ErrorHandler(404, "User not found!"));
+      return next(ErrorHandler(404, "Room not found!"));
     }
     res.status(200).json({
       success: true,
@@ -82,6 +102,8 @@ export const getRoom = async (req, res, next) => {
     next(err);
   }
 };
+
+// room
 export const getRooms = async (req, res, next) => {
   try {
     const rooms = await Room.find();

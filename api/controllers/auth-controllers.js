@@ -61,7 +61,8 @@ export const login = async (req, res, next) => {
       .json({
         success: true,
         token,
-        ...otherDetails,
+        user,
+        isAdmin,
       });
   } catch (error) {
     next(error);
